@@ -24,7 +24,7 @@ public class Main {
 		double lastRateP = 0.6; // 最後のPの値
 		double intervalOfP = 0.025; // Pの感覚
 
-		int N =5 ;		//試行回数
+		int N =8 ;		//試行回数
 		
 		for(tendencyA = 1.0; tendencyA >0.61 ; tendencyA -= 0.1){
 		
@@ -252,19 +252,20 @@ public class Main {
    public void makeNetwork(List<Agent> agentList,int i, double rateOfP){
 	   
 	   int linkNum =4;
-	   List<Agent> statusList = new ArrayList<Agent>();
+	   List<Agent> linkList = new ArrayList<Agent>();
 	  
 	   //i番目のagentだけ抜いたリンク数まわりのリストの作成
 		for (int s = i- linkNum/2; s < i ; s ++) {		//ネットワークの前半リストの作成
 			Agent agent = new Agent(s,rateOfP);
-			statusList.add(agent);
+			linkList.add(agent);
 			}
 		for (int s = i+1; s < i +linkNum/2 + 1; s ++) {		//ネットワークの後半リストの作成
 			Agent agent = new Agent(s,rateOfP);
-			statusList.add(agent);
+			linkList.add(agent);
 		}
 	  
-		if(checkCondition(statusList)){
+		if(checkCondition(linkList)){
+			
 		}
    }
 //
@@ -286,12 +287,13 @@ public class Main {
 //		}	
    
    
-   public boolean checkCondition(List<Agent> statusList, int agentNum){
+   public boolean checkCondition(List<Agent> linkList, int agentNum){
 	   
 	   boolean result;
+	   //ここの部分の書き方がわからない
 	   
-	   for(int i = 0 ;i < statusList.size();i++){
-	   result = (statusList.get(i).status == statusList.get(i+1).status);	   
+	   for(int i = 0 ;i < linkList.size();i++){
+	   result = (linkList.get(i).status != linkList.get(i+1).status);	   
 	   }
 	   return result;
 	   }
