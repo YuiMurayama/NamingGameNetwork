@@ -16,52 +16,52 @@ public class Main {
 		List<Agent> agentList = new ArrayList<Agent>();
 		Main main = new Main(); // staticじゃないメソッドを呼び出すためのおまじない
 
-		int numOfAgent = 1000; // agentの数を定義
+		int numOfAgent = 100; // agentの数を定義
 		double tendencyA = 1.0; // Aになる傾向の確率
 		double tendencyB = 1.0; // Bになる傾向の確率
-		
-		double firstRateP = 0.3; // 最初のPの値
+
+		double firstRateP = 0.4; // 最初のPの値
 		double lastRateP = 0.6; // 最後のPの値
-		double intervalOfP = 0.025; // Pの感覚
+		double intervalOfP = 0.1; // Pの感覚
 
-		int N =8 ;		//試行回数
-		
-		for(tendencyA = 1.0; tendencyA >0.61 ; tendencyA -= 0.1){
-		
-		System.out.println("・Aになる傾向が"+tendencyA+"のとき");
-		System.out.println();
-			
-		String writeFileName = "TendencyA" +"=" +tendencyA+ ".csv";
-		File f = new File(writeFileName);
-		PrintStream pw = new PrintStream(f);
-		
-		for (double rateOfP = firstRateP; rateOfP < lastRateP+ intervalOfP; rateOfP += intervalOfP) { // Pの割合を変えるごとに必要なステップを表示させる
-		
-			int countstep = 0;
+		int N = 1; // 試行回数
 
-			System.out.println("P=" + rateOfP + "で");
-			
-			for (int i = 0; i < N; i++) {
-//				System.out.println("・P=" + rateOfP + "のとき");
-				agentList = main.buildAgentList(numOfAgent, rateOfP);
+		for (tendencyA = 1.0; tendencyA > 0.9; tendencyA -= 0.1) {
 
-//				List<Agent> agentListLate = new ArrayList<Agent>();
-				int numOfStep = main.meetAgent(agentList, rateOfP, pw,
-						tendencyA, tendencyB); // 初期値のリストを出会わせて操作している
-//				int[] resultLate = main.countStatus(agentListLate); // 操作後のそれぞれの値を計算して出力
-
-				countstep += numOfStep;				//ステップ数を試行回数ごとに足していく
-			}
-			
-			double average = countstep/N;
-			System.out.println("平均は"+average);
+			System.out.println("・Aになる傾向が" + tendencyA + "のとき");
 			System.out.println();
-			pw.println(rateOfP + "," + average);// csvにそれぞれのPの値で必要なステップ数を表示させる
-		
-			
+
+			String writeFileName = "TendencyA" + "=" + tendencyA + ".csv";
+			File f = new File(writeFileName);
+			PrintStream pw = new PrintStream(f);
+
+			for (double rateOfP = firstRateP; rateOfP < lastRateP + intervalOfP; rateOfP += intervalOfP) { // Pの割合を変えるごとに必要なステップを表示させる
+
+				int countstep = 0;
+
+				System.out.println("P=" + rateOfP + "で");
+
+				for (int i = 0; i < N; i++) {
+					// System.out.println("・P=" + rateOfP + "のとき");
+					agentList = main.buildAgentList(numOfAgent, rateOfP);
+
+					// List<Agent> agentListLate = new ArrayList<Agent>();
+					int numOfStep = main.meetAgent(agentList, rateOfP, pw,
+							tendencyA, tendencyB); // 初期値のリストを出会わせて操作している
+					// int[] resultLate = main.countStatus(agentListLate); //
+					// 操作後のそれぞれの値を計算して出力
+
+					countstep += numOfStep; // ステップ数を試行回数ごとに足していく
+				}
+
+				double average = countstep / N;
+				System.out.println("平均は" + average);
+				System.out.println();
+				pw.println(rateOfP + "," + average);// csvにそれぞれのPの値で必要なステップ数を表示させる
+
+			}
+
 		}
-		
-	}
 	}
 
 	// agentを生成してそれをリストにいれるメソッド
@@ -78,8 +78,8 @@ public class Main {
 	}
 
 	// agent同士が出会って意見が交換された後のリストを返すメソッド
-	public int meetAgent(List<Agent> agentList, double rateOfP,
-			PrintStream pw, double tendencyA, double tendencyB) { // AとBの傾向パラメータを追加
+	public int meetAgent(List<Agent> agentList, double rateOfP, PrintStream pw,
+			double tendencyA, double tendencyB) { // AとBの傾向パラメータを追加
 
 		List<Agent> tempAgentList = new ArrayList<Agent>();
 		tempAgentList = agentList;
@@ -102,12 +102,23 @@ public class Main {
 
 			while (speakerNum == listenerNum
 			// || tempAgentList.get(listenerNum).status.equals("P")//
-			) { // スピーカーとリスナーが同じ人だった場合は選び直す
+			) { // スピーカーとリスナーが同じ人だった場合は選び直す				
 
 				listenerNum = (int) (Math.random() * agentList.size());
 			}
 			
 			
+			while ( listenerNum <2 | agentList.size()-2< listenerNum			
+					// || tempAgentList.get(listenerNum).status.equals("P")//
+					) { 
+				listenerNum = (int) (Math.random() * agentList.size());
+				
+				// スピーカーとリスナーが同じ人だった場合は選び直す
+			}
+
+			
+			
+
 			// System.out.println("前の"+speakerNum+"番目のSは"+tempAgentList.get(speakerNum).status+","+listenerNum+"番目のLは"+tempAgentList.get(listenerNum).status);
 
 			String[][] changeStatusToA1 = { { "A", "B", "AB" },
@@ -116,7 +127,7 @@ public class Main {
 
 			};
 
-			for (int i = 0; i < changeStatusToA1.length; i++) {
+			for (int i = 3; i < changeStatusToA1.length; i++) {
 
 				String[] array = changeStatusToA1[i];
 
@@ -124,16 +135,11 @@ public class Main {
 						&& tempAgentList.get(listenerNum).status == array[1]) {
 					if (R < tendencyA) {
 						tempAgentList.get(listenerNum).status = array[2];
-					}					
+					}
 				}
-				if(tempAgentList.get(listenerNum-2).status.equals("A")&&tempAgentList.get(listenerNum-1).status.equals("A")
-						&&tempAgentList.get(listenerNum+1).status.equals("A")&&tempAgentList.get(listenerNum+2).status.equals("A"))
-				{
-					tempAgentList.get(listenerNum).status = "A";
-				}
-	
-				makeNetwork(tempAgentList, listenerNum);			//ネットワークを作動
 				
+				makeNetwork(tempAgentList, listenerNum, rateOfP); // ネットワークを作動
+
 			}
 
 			String[][] changeStatusToB1 = { { "B", "A", "AB" },
@@ -149,7 +155,7 @@ public class Main {
 						tempAgentList.get(listenerNum).status = array[2];
 					}
 				}
-				makeNetwork(tempAgentList, listenerNum);			//ネットワークを作動
+				makeNetwork(tempAgentList, listenerNum, rateOfP); // ネットワークを作動
 
 			}
 
@@ -169,7 +175,7 @@ public class Main {
 						}
 					}
 				}
-				makeNetwork(tempAgentList, listenerNum);
+				makeNetwork(tempAgentList, listenerNum,rateOfP);
 			}
 
 			String[][] changeStatusToB2 = { { "AB", "A", "B" },
@@ -187,18 +193,18 @@ public class Main {
 						}
 					}
 				}
-				makeNetwork(tempAgentList, listenerNum);
+				makeNetwork(tempAgentList, listenerNum,rateOfP);
 			}
 
 			// System.out.println("後の"+speakerNum+"番目のSは"+tempAgentList.get(speakerNum).status+","+listenerNum+"番目のLは"+tempAgentList.get(listenerNum).status);
 			// System.out.println();
 
 			resultTemp = countStatus(tempAgentList);
-			
+
 		}
 
-//		pw.println(rateOfP + "," + countStep);// csvにそれぞれのPの値で必要なステップ数を表示させる
-//		System.out.println("必要なステップは" + countStep); // 何回meetさせたのかを表示
+		// pw.println(rateOfP + "," + countStep);// csvにそれぞれのPの値で必要なステップ数を表示させる
+		// System.out.println("必要なステップは" + countStep); // 何回meetさせたのかを表示
 		return countStep;
 	}
 
@@ -237,7 +243,7 @@ public class Main {
 		System.out.println();
 	}
 
-	//AからPの数を出力するメソッド
+	// AからPの数を出力するメソッド
 	public void printCountStatus(int[] array) {
 		System.out.println("出会った後の");
 		System.out.println("Aの数は" + array[0]);
@@ -247,60 +253,63 @@ public class Main {
 		System.out.println();
 
 	}
-	//ネットワークを作るメソッド、周りの４エージェントがある意見なら自分の意見は変えない
-	
-   public void makeNetwork(List<Agent> agentList,int i, double rateOfP){
-	   
-	   int linkNum =4;
-	   List<Agent> linkList = new ArrayList<Agent>();
-	  
-	   //i番目のagentだけ抜いたリンク数まわりのリストの作成
-		for (int s = i- linkNum/2; s < i ; s ++) {		//ネットワークの前半リストの作成
-			Agent agent = new Agent(s,rateOfP);
+
+	// ネットワークを作るメソッド、周りの４エージェントがある意見なら自分の意見は変えない
+
+	public void makeNetwork(List<Agent> agentList, int agentNum, double rateOfP) {
+
+		int linkNum = 4;
+		List<Agent> linkList = new ArrayList<Agent>();
+
+		// i番目のagentだけ抜いたリンク数まわりのリストの作成
+		for (int s = agentNum - linkNum / 2; s < agentNum; s++) { // ネットワークの前半リストの作成
+			Agent agent = new Agent(s, rateOfP);
 			linkList.add(agent);
+		}
+		for (int s = agentNum + 1; s < agentNum + linkNum / 2 + 1; s++) { // ネットワークの後半リストの作成
+			Agent agent = new Agent(s, rateOfP);
+			linkList.add(agent);
+		}
+
+		if (checkCondition(linkList, linkNum) == true) {
+			agentList.get(agentNum - 1).status = agentList.get(agentNum).status;
+
+		}
+	}
+
+	//
+	//
+	// if(agentList.get(i-2).status.equals("A")&&agentList.get(i-1).status.equals("A")
+	// &&agentList.get(i+1).status.equals("A")&&agentList.get(i+2).status.equals("A"))
+	// {
+	// agentList.get(i).status = "A";
+	// }
+	// else
+	// if(agentList.get(i-2).status.equals("B")&&agentList.get(i-1).status.equals("B")
+	// &&agentList.get(i+1).status.equals("B")&&agentList.get(i+2).status.equals("B"))
+	// {
+	// agentList.get(i).status = "B";
+	// }
+	// else
+	// if(agentList.get(i-2).status.equals("P")&&agentList.get(i-1).status.equals("P")
+	// &&agentList.get(i+1).status.equals("P")&&agentList.get(i+2).status.equals("P"))
+	// {
+	// agentList.get(i).status = "P";
+	// }
+
+	// statusListの中の値が全じだったらtrue,一つでも違うのがあればfalseを返すメソッド
+	public boolean checkCondition(List<Agent> linkList, int agentNum) {
+
+		boolean result = true;
+		// ここの部分の書き方がわからない
+
+		for (int i = 1; i < linkList.size(); i++) {
+			if (!(linkList.get(0).status.equals(linkList.get(i).status))) { // もし０こめのリストのステイタスと違うエージェントがいたら
+				result = false;
+				break;
 			}
-		for (int s = i+1; s < i +linkNum/2 + 1; s ++) {		//ネットワークの後半リストの作成
-			Agent agent = new Agent(s,rateOfP);
-			linkList.add(agent);
 		}
-	  
-		if(checkCondition(linkList)){
-			
-		}
-   }
-//
-//		   
-//	   if(agentList.get(i-2).status.equals("A")&&agentList.get(i-1).status.equals("A")
-//				&&agentList.get(i+1).status.equals("A")&&agentList.get(i+2).status.equals("A"))
-//		{
-//			agentList.get(i).status = "A";
-//		}	
-//	   else if(agentList.get(i-2).status.equals("B")&&agentList.get(i-1).status.equals("B")
-//				&&agentList.get(i+1).status.equals("B")&&agentList.get(i+2).status.equals("B"))
-//		{
-//			agentList.get(i).status = "B";
-//		}
-//	   else if(agentList.get(i-2).status.equals("P")&&agentList.get(i-1).status.equals("P")
-//				&&agentList.get(i+1).status.equals("P")&&agentList.get(i+2).status.equals("P"))
-//		{
-//			agentList.get(i).status = "P";
-//		}	
-   
-   
-   public boolean checkCondition(List<Agent> linkList, int agentNum){
-	   
-	   boolean result;
-	   //ここの部分の書き方がわからない
-	   
-	   for(int i = 0 ;i < linkList.size();i++){
-	   result = (linkList.get(i).status != linkList.get(i+1).status);	   
-	   }
-	   return result;
-	   }
-	   
-   }
-   
-   
-   
-   
+		return result;
+	}
+
 }
