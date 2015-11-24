@@ -17,7 +17,7 @@ public class Main {
 		List<Agent> agentList = new ArrayList<Agent>();
 		Main main = new Main(); // staticじゃないメソッドを呼び出すためのおまじない
 
-		int numOfAgent = 10; // agentの数を定義
+		int numOfAgent = 100; // agentの数を定義
 		double tendencyA = 1.0; // Aになる傾向の確率
 		double lastTendencyA = 0.9;
 		double intervalTendencyA = 0.1;
@@ -38,7 +38,7 @@ public class Main {
 			File f = new File(writeFileName);
 			PrintStream pw = new PrintStream(f);
 
-			for (double rateOfP = firstRateP; rateOfP < lastRateP ; rateOfP += intervalOfP) { // Pの割合を変えるごとに必要なステップを表示させる
+			for (double rateOfP = firstRateP; rateOfP < lastRateP; rateOfP += intervalOfP) { // Pの割合を変えるごとに必要なステップを表示させる
 
 				int countstep = 0;
 
@@ -49,13 +49,16 @@ public class Main {
 					agentList = main.buildAgentList(numOfAgent, rateOfP);
 					System.out.println("meetagent前");
 					
-					for(int t = 0; t < numOfAgent; t++){			//初期状態の出力
+
+					for (int t = 0; t < numOfAgent; t++) { // 初期状態の出力
 						System.out.print(agentList.get(t).status);
+						
 					}
-					main.printCountStatus(main.countStatus(agentList));
-			
 					System.out.println();
-					
+					main.printCountStatus(main.countStatus(agentList));
+
+					System.out.println();
+
 					int numOfStep = main.meetAgent(agentList, rateOfP, pw,
 							tendencyA, tendencyB, numOfAgent); // 初期値のリストを出会わせて操作している
 					System.out.println("meetagent後");
@@ -100,43 +103,76 @@ public class Main {
 
 		// while (resultTemp[1] > numOfAgent*0.8) { // ステップをBの人がいなくなるまで繰り返す
 
-	//	while (resultTemp[1] > numOfAgent* 0.05) {
-		
-		for(int s =0; s< 50; s++){
+		 while (resultTemp[1] > numOfAgent* 0.05) {
+
+	//	for (int s = 0; s < 50; s++) {
 			countStep++;
-					
-			int linkNum = 8;
+			
+			int linkNum = 0;
+			
+			if(countStep%2 == 0){				//リンク数が4と20
+				linkNum = 20;
+			}else{
+				linkNum = 4;
+			}
+		
+			
+			
 			// for (int i = 0; i < stepNum; i++) {
 
 			double r = Math.random(); // 一つ目の乱数発生！
 			double R = Math.random(); // 二つ目の乱数発生！
 
-			int speakerNum = (int) (Math.random() * agentList.size());
+			int speakerNum = (int) (Math.random() * agentList.size()); // speakerをランダムに選ぶ
 
-			List<Agent> linkList = new ArrayList<Agent>();
-			linkList = makeNetwork(tempAgentList, speakerNum, linkNum);
-
+			int listenerNum = 0;
+			
+			
+			
 			Random rnd = new Random();
-			int listenerNum = rnd.nextInt(linkList.size());
+			int templistenerNum = rnd.nextInt(linkNum)+1; // リンク数からランダムに一つ選択
 
-			while (speakerNum == listenerNum
-					// || tempAgentList.get(listenerNum).status.equals("P")//
-					) { // スピーカーとリスナーが同じ人だった場合は選び直す
-
-						listenerNum = rnd.nextInt(linkList.size());
-					}
+			System.out.println("リンク数は"+linkNum);
 			
+			System.out.println("speakerは"+speakerNum);
+			System.out.println("templistenerは"+templistenerNum);
+			// ここから listenerを選ぶコード//
 			
-			tempAgentList.get(listenerNum).status = linkList.get(listenerNum).status;
+			if (templistenerNum > linkNum / 2.0) {
+				if (speakerNum + templistenerNum - linkNum / 2 >= agentList
+						.size()) {
+					 System.out.println("あ");
+					listenerNum = speakerNum + templistenerNum - linkNum / 2
+							- agentList.size();
+				} else {
+					 System.out.println("い");
+					listenerNum = speakerNum + templistenerNum - linkNum / 2
+							;
+				}
 
+			}
+
+			if (templistenerNum <= linkNum / 2.0) {
+				if (speakerNum - (linkNum / 2 - templistenerNum) > 0) {
+					 System.out.println("う");
+					listenerNum = speakerNum - (linkNum / 2 - templistenerNum)
+							- 1;
+				} else {
+					 System.out.println("え");
+					listenerNum = agentList.size()
+							- (linkNum / 2 - templistenerNum) + speakerNum - 1;
+				}
+			}
+
+		
+			
 			System.out.println("前の" + speakerNum + "番目のSpeakerは"
 					+ tempAgentList.get(speakerNum).status + "," + listenerNum
 					+ "番目のListernerは" + tempAgentList.get(listenerNum).status);
 
 			String[][] changeStatusToA1 = { { "A", "B", "AB" },
 					{ "A", "AB", "A" }, // Aよりになるとき
-					{ "P", "B", "AB" }, { "P", "AB", "A" },
-			};
+					{ "P", "B", "AB" }, { "P", "AB", "A" }, };
 
 			boolean havechanged = false;
 			for (int i = 0; i < changeStatusToA1.length; i++) {
@@ -146,7 +182,7 @@ public class Main {
 				if (tempAgentList.get(speakerNum).status == array[0]
 						&& tempAgentList.get(listenerNum).status == array[1]) {
 					havechanged = true;
-					System.out.println("ToA1");
+		//			System.out.println("ToA1");
 					if (R < tendencyA) {
 						tempAgentList.get(listenerNum).status = array[2];
 					}
@@ -165,7 +201,7 @@ public class Main {
 					if (tempAgentList.get(speakerNum).status == array[0]
 							&& tempAgentList.get(listenerNum).status == array[1]) {
 						havechanged = true;
-						System.out.println("ToB1");
+			//			System.out.println("ToB1");
 						if (r < tendencyB) {
 							tempAgentList.get(listenerNum).status = array[2];
 						}
@@ -179,7 +215,7 @@ public class Main {
 						&& agentList.get(listenerNum).status.equals("AB")) {
 					havechanged = true;
 
-					if (r < tendencyA/(tendencyA+tendencyB)) {
+					if (r < tendencyA / (tendencyA + tendencyB)) {
 						agentList.get(listenerNum).status = "A";
 					} else {
 						agentList.get(listenerNum).status = "B";
@@ -198,7 +234,7 @@ public class Main {
 					if (tempAgentList.get(speakerNum).status == array[0]
 							&& tempAgentList.get(listenerNum).status == array[1]) {
 						havechanged = true;
-						System.out.println("ToA2");
+				//		System.out.println("ToA2");
 						if (r < 1.0 / 2.0) {
 							if (r < tendencyA) {
 								tempAgentList.get(listenerNum).status = array[2];
@@ -218,7 +254,7 @@ public class Main {
 					if (tempAgentList.get(speakerNum).status == array[0]
 							&& tempAgentList.get(listenerNum).status == array[1]) {
 						havechanged = true;
-						System.out.println("ToB2");
+			//			System.out.println("ToB2");
 						if (r < 1.0 / 2.0) {
 							if (r < tendencyB) {
 								tempAgentList.get(listenerNum).status = array[2];
@@ -229,15 +265,14 @@ public class Main {
 				}
 			}
 
-			System.out.println("前の" + speakerNum + "番目のSpeakerは"
+			System.out.println("後の" + speakerNum + "番目のSpeakerは"
 					+ tempAgentList.get(speakerNum).status + "," + listenerNum
 					+ "番目のListenerは" + tempAgentList.get(listenerNum).status);
 
-			
-			 System.out.println();
+			System.out.println();
 
 			resultTemp = countStatus(tempAgentList);
-			printCountStatus(resultTemp);
+//			printCountStatus(resultTemp);
 
 		}
 
@@ -283,66 +318,12 @@ public class Main {
 
 	// AからPの数を出力するメソッド
 	public void printCountStatus(int[] array) {
-	//	System.out.println("出会った後の");
+		// System.out.println("出会った後の");
 		System.out.println("Aの数は" + array[0]);
 		System.out.println("Bの数は" + array[1]);
 		System.out.println("ABの数は" + array[2]);
 		System.out.println("Pの数は" + array[3]);
 		System.out.println();
 
-	}
-
-	// ネットワークを作るメソッド、周りの４エージェントがある意見なら自分の意見は変えない
-
-	public List<Agent> makeNetwork(List<Agent> agentList, int agentNum,
-			int linkNum) {
-
-		List<Agent> linkList = new ArrayList<Agent>();
-
-		// i番目のagentだけ抜いたリンク数まわりのリストの作成
-
-		// 前半リスト
-		int numOfAgent = agentList.size();
-
-		if (agentNum >= linkNum / 2) { // 普通のとき
-			for (int s = agentNum - linkNum / 2; s < agentNum; s++) {
-				Agent agent = agentList.get(s); // あるエージェントの前のエージェント達をリストに追加
-				linkList.add(agent);
-			}
-		}
-
-		else if (agentNum < linkNum / 2) { // ちっちゃくてはみ出たときの前半
-			for (int s = numOfAgent - (linkNum / 2 - agentNum); s < numOfAgent; s++) { // 大きい方へ回る分
-				Agent agent = agentList.get(s); // あるエージェントの前のエージェント達をリストに追加
-				linkList.add(agent);
-			}
-
-			for (int s = 0; s < agentNum; s++) { // ちっちゃくてはみ出た時後
-				Agent agent = agentList.get(s);
-				linkList.add(agent);
-			}
-
-			// ここまでおっけい
-
-			// 後半リスト
-		}
-
-		if (numOfAgent - linkNum / 2 >= agentNum) { // 普通の時
-			for (int s = agentNum ; s < agentNum + linkNum / 2 ; s++) {
-				Agent agent = agentList.get(s); // あるエージェントの後のエージェント達をリストに追加
-				linkList.add(agent);
-			}
-		} else if (agentNum > numOfAgent - linkNum / 2) { // おっきくてはみ出したとき前半
-			for (int s = 0; s < agentNum - (numOfAgent - linkNum / 2); s++) {
-				Agent agent = agentList.get(s); // あるエージェントの後のエージェント達をリストに追加
-				linkList.add(agent);
-			}
-			for (int s = agentNum; s < numOfAgent; s++) { // おっきくてはみ出した時後半
-				Agent agent = agentList.get(s); // あるエージェントの後のエージェント達をリストに追加
-				linkList.add(agent);
-			}
-		}
-
-		return linkList;
 	}
 }
